@@ -18,7 +18,7 @@ export default class Runtime {
                 this.omegga.whisper(speaker, "Please enter a number for size.");
                 return;
             }
-            const map = MapGenerator.create([sizeInt, sizeInt]);
+            const map = MapGenerator.create([sizeInt, sizeInt / 2], Math.random());
 
             MapGenerator.load(map);
         });
