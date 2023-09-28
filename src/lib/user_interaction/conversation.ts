@@ -20,10 +20,10 @@ export default class Conversation {
     /**
      * This sets the player commands for communicating with the plugin through the conversations API.
      * @param responseCommandNames Command names that correlate to responding to conversations
-     * @param yesCommandNames Command names that correlate to saying "yes" to conversations
-     * @param noCommandNames Command names that correlate to saying "no" to conversations
+     * @param shortcutCommandNames Command names that give shortcuts in conversation, like "yes" and "no"
+     *
      */
-    public static setup(responseCommandNames?: string[], yesCommandNames?: string[], noCommandNames?: string[]) {
+    public static setup(responseCommandNames?: string[], shortcutCommandNames?: { [shortcut: string]: string[] }) {
         for (let i = 0; i < responseCommandNames?.length; i++) {
             const name = responseCommandNames[i];
             new Command(name, (speaker: string, ...response: string[]) => {
@@ -36,28 +36,22 @@ export default class Conversation {
             });
         }
 
-        for (let i = 0; i < yesCommandNames?.length; i++) {
-            const name = yesCommandNames[i];
-            new Command(name, (speaker: string) => {
-                if (!(speaker in this.userContexts)) {
-                    Runtime.omegga.whisper(speaker, "There is no context.");
-                    return;
-                }
-                this.userContexts[speaker].defer.resolve("yes");
-                delete this.userContexts[speaker];
-            });
-        }
+        const shortcutNames = Object.keys(shortcutCommandNames);
 
-        for (let i = 0; i < noCommandNames?.length; i++) {
-            const name = noCommandNames[i];
-            new Command(name, (speaker: string) => {
-                if (!(speaker in this.userContexts)) {
-                    Runtime.omegga.whisper(speaker, "There is no context.");
-                    return;
-                }
-                this.userContexts[speaker].defer.resolve("no");
-                delete this.userContexts[speaker];
-            });
+        for (let i = 0; i < shortcutNames.length; i++) {
+            const shortcut = shortcutNames[i];
+            const shortcutCommands = shortcutCommandNames[shortcut];
+            for (let j = 0; j < shortcutCommands.length; j++) {
+                const name = shortcutCommands[j];
+                new Command(name, (speaker: string) => {
+                    if (!(speaker in this.userContexts)) {
+                        Runtime.omegga.whisper(speaker, "There is no context.");
+                        return;
+                    }
+                    this.userContexts[speaker].defer.resolve(shortcut);
+                    delete this.userContexts[speaker];
+                });
+            }
         }
     }
 

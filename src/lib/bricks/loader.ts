@@ -1,5 +1,4 @@
 import { Brick, WriteSaveObject } from "../../../omegga";
-import Runtime from "../../runtime/main";
 import OmeggaImprovements from "../local_omegga";
 
 enum Direction {

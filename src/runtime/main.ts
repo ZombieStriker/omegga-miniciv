@@ -12,7 +12,10 @@ export default class Runtime {
     public static async main(omegga: OmeggaLike, config: PC<Config>, store: PS<Storage>): Promise<void> {
         [this.omegga, this.config, this.store] = [omegga, config, store];
 
-        ConversationInterface.setup(["response", "r"], ["yes", "y"], ["no", "n"]);
+        ConversationInterface.setup(["response", "r"], {
+            yes: ["yes", "y"],
+            no: ["no", "n"],
+        });
 
         new Command("start-game", async (speaker: string) => {
             const conversation = new ConversationInterface(speaker);
