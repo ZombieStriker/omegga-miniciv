@@ -19,7 +19,7 @@ export default class Runtime {
 
             let worldSizeResponse = (
                 await conversation
-                    .query(["What size world do you want?", "Tiny, Small, Standard, Large, Huge"])
+                    .query(["What size world do you want?", "Small, Standard, Large, Huge"])
                     .expect(
                         (responce) =>
                             responce.toLowerCase() === "small" ||
