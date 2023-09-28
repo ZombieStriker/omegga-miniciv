@@ -28,7 +28,7 @@ type Map = {
 };
 
 export default class MapGenerator {
-    public static readonly gridSize = 20;
+    public static readonly gridSize = 40;
 
     public static create(size: [number, number], seed: number): Map {
         let map: Map = {
@@ -49,7 +49,7 @@ export default class MapGenerator {
         const persistence = 0.5;
         const lacunarity = 2;
 
-        // Height Pass
+        // Height/Moisture/Temperature Pass
         for (let x = 0; x < size[0]; x++) {
             for (let y = 0; y < size[1]; y++) {
                 let heightOutput = 0;
@@ -142,7 +142,17 @@ export default class MapGenerator {
         return map;
     }
 
-    public static load(map: Map) {
+    public static load(
+        map: Map,
+        options?: {
+            offX?: number;
+            offY?: number;
+            offZ?: number;
+            quiet?: boolean;
+            correctPalette?: boolean;
+            correctCustom?: boolean;
+        }
+    ) {
         let terrain: Brick[] = [];
 
         const mapKeys = Object.keys(map.cells);
@@ -208,6 +218,6 @@ export default class MapGenerator {
             });
         }
 
-        BrickLoader.load(terrain);
+        BrickLoader.load(terrain, options);
     }
 }
