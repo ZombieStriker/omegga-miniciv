@@ -29,7 +29,7 @@ export default class BrickadiaContentSync {
      * @param file_path The file path relative the root path
      * @param location Determines what root path to use
      * @param type Used to build the BrickadiaFile object, and to find the relevant path for brickadia's root.
-     * @returns
+     * @returns BrickadiaFile
      */
     public getFile(file_path: string, location: "plugin" | "brickadia", type: "build" | "minigame" | "environment"): BrickadiaFile | null {
         const fileLocation = (() => {
@@ -60,6 +60,38 @@ export default class BrickadiaContentSync {
     }
 
     /**
+     * Creates an array of BrickadiaFile objects from the plugin side
+     * @param file_path The file path relative the root path
+     * @param type Used to build the BrickadiaFile object.
+     * @returns Promise to BrickadiaFile
+     */
+    public getFilesInPlugin(file_path: string, type: "build" | "minigame" | "environment"): Promise<BrickadiaFile[] | null> {
+        return new Promise((res) => {
+            let brickadiaFiles: BrickadiaFile[] = [];
+
+            fsp.readdir(path.join(this.dataPath, file_path))
+                .then((results) => {
+                    for (let i = 0; i < results.length; i++) {
+                        const result = results[i];
+                        const parsed = path.parse(result);
+                        if (!parsed.ext) continue;
+
+                        brickadiaFiles.push({
+                            type: type,
+                            location: "plugin",
+                            name: path.basename(result).match(/(.*)\.[^.]+$/)[1],
+                            path: path.join(this.dataPath, file_path, result),
+                        });
+                    }
+                    res(brickadiaFiles);
+                })
+                .catch((err) => {
+                    console.warn(err);
+                });
+        });
+    }
+
+    /**
      * Copies a game file from the plugin to brickadia using a BrickadiaFile
      * @param file BrickadiaFile Object
      * @returns A promise that resolves when the file is copied.
@@ -75,6 +107,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {
@@ -92,6 +127,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {
@@ -106,6 +144,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {
@@ -134,6 +175,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {
@@ -148,6 +192,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {
@@ -162,6 +209,9 @@ export default class BrickadiaContentSync {
                         const sourcePath = file.path;
 
                         fsp.mkdir(path.dirname(destinationPath), { recursive: true }).then(() => {
+                            if (fs.existsSync(destinationPath)) {
+                                res();
+                            }
                             fsp.copyFile(sourcePath, destinationPath)
                                 .then(res)
                                 .catch((err) => {

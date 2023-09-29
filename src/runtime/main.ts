@@ -17,6 +17,12 @@ export default class Runtime {
     public static async main(omegga: OmeggaLike, config: PC<Config>, store: PS<Storage>): Promise<void> {
         [this.omegga, this.config, this.store] = [omegga, config, store];
 
+        const builds = await this.brickadiaData.getFilesInPlugin("builds", "build");
+        for (let i = 0; i < builds.length; i++) {
+            const build = builds[i];
+            this.brickadiaData.copyToBrickadia(build);
+        }
+
         ConversationInterface.setup(["respond", "r"], {
             yes: ["yes", "y"],
             no: ["no", "n"],
