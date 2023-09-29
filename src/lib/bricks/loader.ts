@@ -71,4 +71,32 @@ export default class BrickLoader {
 
         OmeggaImprovements.loadSaveData(saveData, options);
     }
+
+    public static instanceload(
+        bricks: Brick[],
+        options?: {
+            offX?: number;
+            offY?: number;
+            offZ?: number;
+            quiet?: boolean;
+            correctPalette?: boolean;
+            correctCustom?: boolean;
+        }[]
+    ) {
+        let processedBricks = bricks.map((brick) => {
+            return { ...this.brickTemplate, ...brick };
+        });
+        let saveData: WriteSaveObject = {
+            ...this.writeSaveObjectTemplate,
+            bricks: processedBricks,
+        };
+
+        OmeggaImprovements.bakeSaveData(saveData).then(async (saveFile) => {
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                await OmeggaImprovements.loadBricks(saveFile, option);
+            }
+            OmeggaImprovements.removeSaveFile(saveFile);
+        });
+    }
 }

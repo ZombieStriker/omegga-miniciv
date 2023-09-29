@@ -3,6 +3,7 @@ import { Config } from "omegga.plugin";
 import MapGenerator from "src/lib/map/generator";
 import Command from "src/lib/user_interaction/commands";
 import ConversationInterface from "src/lib/user_interaction/conversation";
+import Menu from "src/lib/user_interaction/menu";
 
 export default class Runtime {
     public static omegga: OmeggaLike;
@@ -15,6 +16,24 @@ export default class Runtime {
         ConversationInterface.setup(["response", "r"], {
             yes: ["yes", "y"],
             no: ["no", "n"],
+        });
+
+        new Command("menu-test", (speaker: string) => {
+            const menu = new Menu(speaker);
+            menu.update("Hello, Menu!");
+            menu.render();
+            setTimeout(() => {
+                menu.update("This is pretty neat, huh?");
+            }, 2000);
+            setTimeout(() => {
+                menu.update("Menus are awesome!");
+            }, 4500);
+            setTimeout(() => {
+                menu.update(`<font="RobotoMono">You can even use </><br> <size="40"><b><color="FF0000">rich</> <color="00FFFF">text</>!</></>`);
+            }, 7000);
+            setTimeout(() => {
+                menu.dispose();
+            }, 10000);
         });
 
         new Command("start-game", async (speaker: string) => {

@@ -218,6 +218,24 @@ export default class MapGenerator {
             });
         }
 
-        BrickLoader.load(terrain, options);
+        let optionsArray: {
+            offX?: number;
+            offY?: number;
+            offZ?: number;
+            quiet?: boolean;
+            correctPalette?: boolean;
+            correctCustom?: boolean;
+        }[] = [];
+
+        for (let x = 0; x < 1; x++) {
+            for (let y = 0; y < 1; y++) {
+                optionsArray.push({
+                    offX: (this.gridSize * 2 * map.size[0] + this.gridSize * 2) * x,
+                    offY: (this.gridSize * 2 * map.size[1] + this.gridSize * 2) * y,
+                });
+            }
+        }
+
+        BrickLoader.instanceload(terrain, optionsArray);
     }
 }
