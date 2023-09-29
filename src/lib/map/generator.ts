@@ -1,6 +1,9 @@
 import { Brick } from "omegga";
 import BrickLoader from "../bricks/loader";
 import { createNoise2D } from "simplex-noise";
+import Runtime from "src/runtime/main";
+import OmeggaImprovements from "../local_omegga";
+import path from "path";
 
 enum Biome {
     GrassLand,
@@ -12,12 +15,17 @@ enum Biome {
     Deep_Water,
 }
 
+enum LandFeature {
+    Forest,
+}
+
 type Cell = {
     surfaceHeight: number;
     generatorHeight: number;
     temperature: number;
     moisture: number;
     biome: Biome;
+    landFeature?: LandFeature;
 };
 
 type Map = {
@@ -38,7 +46,7 @@ export default class MapGenerator {
 
         const heightOffset = 0;
         const temperatureOffset = 0;
-        const moistureOffset = 0;
+        const moistureOffset = 0.25;
 
         const noise2D = createNoise2D(() => seed);
 
@@ -139,10 +147,36 @@ export default class MapGenerator {
             }
         }
 
+        // Land Feature Pass
+
+        for (let x = 0; x < size[0]; x++) {
+            for (let y = 0; y < size[1]; y++) {
+                let cell = map.cells[`${[x, y]}`];
+
+                if (cell.biome === Biome.GrassLand || cell.biome === Biome.Plains || cell.biome === Biome.Tundra) {
+                    let featureOutput = 0;
+                    for (let i = 1; i <= octaves; i++) {
+                        const featureOffsetY = i * 12300;
+                        const featureOffsetX = i * 6200;
+                        featureOutput +=
+                            noise2D(
+                                featureOffsetX + (x / frequency) * 5 * ((1 / lacunarity) * i),
+                                featureOffsetY + (y / frequency) * 5 * ((1 / lacunarity) * i)
+                            ) *
+                            1 *
+                            (persistence / i);
+                    }
+                    if (featureOutput > 0.3) {
+                        cell.landFeature = LandFeature.Forest;
+                    }
+                }
+            }
+        }
+
         return map;
     }
 
-    public static load(
+    public static async load(
         map: Map,
         options?: {
             offX?: number;
@@ -154,6 +188,17 @@ export default class MapGenerator {
         }
     ) {
         let terrain: Brick[] = [];
+        let landFeaturePositions: {
+            saveName: string;
+            options: {
+                offX?: number;
+                offY?: number;
+                offZ?: number;
+                quiet?: boolean;
+                correctPalette?: boolean;
+                correctCustom?: boolean;
+            };
+        }[] = [];
 
         const mapKeys = Object.keys(map.cells);
         for (let i = 0; i < mapKeys.length; i++) {
@@ -216,6 +261,18 @@ export default class MapGenerator {
                     cell.surfaceHeight,
                 ],
             });
+
+            if (cell.landFeature === LandFeature.Forest) {
+                landFeaturePositions.push({
+                    saveName: path.join(path.basename(Runtime.path), "Forest"),
+                    options: {
+                        quiet: true,
+                        offX: cellPosition[0] * MapGenerator.gridSize * 2,
+                        offY: cellPosition[1] * MapGenerator.gridSize * 2,
+                        offZ: -1000 + cell.surfaceHeight * 2,
+                    },
+                });
+            }
         }
 
         let optionsArray: {
@@ -236,6 +293,11 @@ export default class MapGenerator {
             }
         }
 
-        BrickLoader.instanceload(terrain, optionsArray);
+        await BrickLoader.instanceload(terrain, optionsArray);
+
+        for (let i = 0; i < landFeaturePositions.length; i++) {
+            const landFeature = landFeaturePositions[i];
+            Runtime.omegga.loadBricks(landFeature.saveName, landFeature.options);
+        }
     }
 }

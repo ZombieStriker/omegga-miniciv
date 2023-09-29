@@ -20,7 +20,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     }
 
     async init() {
-        Runtime.main(this.omegga, this.config, this.store);
+        await Runtime.main(this.omegga, this.config, this.store);
         return { registeredCommands: Object.keys(Command.getListeners()) };
     }
 
