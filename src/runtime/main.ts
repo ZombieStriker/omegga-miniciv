@@ -1,5 +1,7 @@
 import { OmeggaLike, PC, PS } from "omegga";
 import { Config } from "omegga.plugin";
+import path from "path";
+import BrickadiaContentSync from "src/lib/file_management/brickadia_content_sync";
 import MapGenerator from "src/lib/map/generator";
 import Command from "src/lib/user_interaction/commands";
 import ConversationInterface from "src/lib/user_interaction/conversation";
@@ -9,11 +11,13 @@ export default class Runtime {
     public static omegga: OmeggaLike;
     public static config: PC<Config>;
     public static store: PS<Storage>;
+    public static path: string = path.join(__dirname, "..");
+    public static brickadiaData = new BrickadiaContentSync(path.join(this.path, "data"));
 
     public static async main(omegga: OmeggaLike, config: PC<Config>, store: PS<Storage>): Promise<void> {
         [this.omegga, this.config, this.store] = [omegga, config, store];
 
-        ConversationInterface.setup(["response", "r"], {
+        ConversationInterface.setup(["respond", "r"], {
             yes: ["yes", "y"],
             no: ["no", "n"],
         });
